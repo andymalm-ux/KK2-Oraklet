@@ -1,16 +1,20 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 from contextlib import asynccontextmanager
-# from app.chain.runnable import TicketInput
+from app.chain.pipeline import create_csv_chain
 from app.chain.steps import SmolLM
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.llm = SmolLM()
+
+    llm = SmolLM()
+
+    app.state.llm = llm
+    app.state.csv_chain = create_csv_chain(llm)
+
+    app.state.csv_data = []
 
     yield
 
-    print("Shutting down...")
 
 app = FastAPI(lifespan=lifespan)
 

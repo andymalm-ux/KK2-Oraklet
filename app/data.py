@@ -1,4 +1,4 @@
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 import csv
 import io
 import pandas as pd
@@ -8,25 +8,32 @@ router = APIRouter()
 csv_data = []
 
 @router.post("/upload")
-async def upload_csv(file: UploadFile = File(...)):
-  global csv_data
-  
-  if file.filename and file.filename.endswith('.csv'):
+async def upload_csv(
+    request: Request,
+    file: UploadFile = File(...)
+):
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(
+            status_code=415,
+            detail="You can only upload csv files"
+        )
+
     content = await file.read()
 
-    csv_decode = io.StringIO(content.decode('utf-8'))
-    csv_reader = csv.DictReader(csv_decode)    
-    csv_data = list(csv_reader)
+    csv_decode = io.StringIO(
+        content.decode("utf-8")
+    )
 
-    return {"message": "File successfully uploaded"}, csv_data
-  
-  else:
-    raise HTTPException(status_code=415, detail="You can only upload csv files")
+    csv_reader = csv.DictReader(csv_decode)
+
+    request.app.state.csv_data = list(csv_reader)
+
+    return {"rows": len(request.app.state.csv_data)}
   
 @router.get("/data")
-async def get_data():
+async def get_data(request: Request):
   
-  get_stored_data = csv_data
+  get_stored_data = request.app.state.csv_data
 
   if len(get_stored_data) == 0 :
     raise HTTPException(status_code=404, detail="You need to upload a csv file first.")
@@ -34,9 +41,9 @@ async def get_data():
     return get_stored_data
   
 @router.get ("/data/stats")
-async def get_data_stats():
+async def get_data_stats(request: Request):
   
-  get_data_stats = csv_data
+  get_data_stats = request.app.state.csv_data
 
   if len(get_data_stats) == 0 :
     raise HTTPException(status_code=404, detail="You need to upload a csv file first.")
