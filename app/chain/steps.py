@@ -1,5 +1,4 @@
 from transformers import pipeline
-# from pprint import pprint
 from pydantic import BaseModel, PrivateAttr
 from app.chain.runnable import Runnable
 from fastapi import APIRouter

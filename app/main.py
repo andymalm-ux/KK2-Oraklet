@@ -1,20 +1,18 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from app.chain.runnable import TicketInput, ticket_pipeline
+from contextlib import asynccontextmanager
+# from app.chain.runnable import TicketInput
+from app.chain.steps import SmolLM
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.llm = SmolLM()
 
-class LLMRequest(BaseModel):
-    id: int
-    message: str
+    yield
 
-@app.post("/llm")
-def llm_route(body: LLMRequest):
-    incoming_ticket = TicketInput(
-        customer_id=body.id,
-        message=body.message
-    )
-    return ticket_pipeline.invoke(incoming_ticket)
+    print("Shutting down...")
+
+app = FastAPI(lifespan=lifespan)
 
 from .data import router as data_router
 from .chain.steps import router as steps_router
