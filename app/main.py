@@ -17,5 +17,7 @@ def llm_route(body: LLMRequest):
     return ticket_pipeline.invoke(incoming_ticket)
 
 from .data import router as data_router
+from .chain.steps import router as steps_router
 
 app.include_router(data_router)
+app.include_router(steps_router)
