@@ -17,22 +17,22 @@ class DataFramePromptBuilder(
         preview = df.head(10).to_string()
 
         return f"""
-Du är en assistent som analyserar CSV-data.
+You are a assistant that analyses CSV-data.
 
-Regler:
-- Använd endast information från tabellen.
-- Hitta inte på information.
-- Om information saknas ska du säga det.
-- Svara kortfattat.
+Rules:
+- Only use information from the table.
+- Do not make up information.
+- If there is information missing you should say that.
+- Provide a short answer.
 
-Tabell:
+Table:
 
 {preview}
 
-Fråga:
+Question:
 {data.question}
 
-Svar:
+Answer:
 """  
 class SmolLM(Runnable[str, str]):
     model_name: str = "HuggingFaceTB/SmolLM2-360M-Instruct"
