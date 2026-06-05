@@ -31,3 +31,26 @@ def test_get_data():
   assert len(data) == 3
   assert data[0]["columns1"] == "1"
   assert data[0]["columns2"] == "4"
+
+def test_get_data_stats():
+  upload_response = client.post("/upload", files={"file": ("test.csv", create_test_csv(), "text/csv")})
+
+  assert upload_response.status_code ==200
+
+  stats_response = client.get("/data/stats")
+
+  assert stats_response.status_code == 200
+
+  stats = stats_response.json()
+
+  assert "columns1" in stats
+  assert "columns2" in stats
+
+
+def test_get_data_without_upload():
+
+  app.state.csv_data = []
+
+  response = client.get("/data")
+
+  assert response.status_code == 404
