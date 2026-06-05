@@ -7,9 +7,7 @@ import pandas as pd
 
 router = APIRouter()
 
-class DataFramePromptBuilder(
-    Runnable[DataFrameContext, str]
-):
+class DataFramePromptBuilder(Runnable[DataFrameContext, str]):
     def invoke(self, data: DataFrameContext) -> str:
 
         df = pd.DataFrame(data.csv_data)
