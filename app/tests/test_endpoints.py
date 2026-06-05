@@ -16,3 +16,18 @@ def test_csv_upload():
   response = client.post("/upload", files={"file": ("test.csv", create_test_csv(), "text/csv")})
 
   assert response.status_code == 200
+
+def test_get_data():
+  upload_response = client.post("/upload", files={"file": ("test.csv", create_test_csv(), "text/csv")})
+
+  assert upload_response.status_code ==200
+
+  data_response = client.get("/data")
+
+  assert data_response.status_code == 200
+
+  data = data_response.json()
+
+  assert len(data) == 3
+  assert data[0]["columns1"] == "1"
+  assert data[0]["columns2"] == "4"
