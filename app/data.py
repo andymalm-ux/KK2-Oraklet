@@ -50,3 +50,7 @@ async def get_data_stats(request: Request):
   else:
     stats = pd.DataFrame(get_data_stats)
     return stats.describe().to_dict()
+  
+@router.get ("/health")
+def health_check():
+   return {"status": "OK"}
